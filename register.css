@@ -1,0 +1,188 @@
+
+/* TechLink Wealth - Registration Page */
+
+body.register-page {
+    margin: 0;
+    min-height: 100vh;
+    padding: 30px 16px;
+    box-sizing: border-box;
+    background: #f3f6fb;
+    color: #17243a;
+    font-family: "Segoe UI", Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.register-page *,
+.register-page *::before,
+.register-page *::after {
+    box-sizing: border-box;
+}
+
+.register-brand {
+    text-align: center;
+    margin: 15px 0 24px;
+}
+
+.register-brand .brand-mark {
+    width: 54px;
+    height: 54px;
+    margin: 0 auto 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 15px;
+    background: #102b50;
+    color: #e9bd59;
+    font-size: 25px;
+    font-weight: 800;
+}
+
+.register-brand h1 {
+    margin: 0;
+    color: #102b50;
+    font-size: 25px;
+}
+
+.register-brand p {
+    margin: 7px 0 0;
+    color: #738096;
+    font-size: 14px;
+}
+
+.register-card {
+    width: 100%;
+    max-width: 460px;
+    padding: 32px;
+    background: #fff;
+    border: 1px solid #e5eaf2;
+    border-radius: 16px;
+    box-shadow: 0 12px 35px rgba(16, 43, 80, .08);
+}
+
+.register-card h2 {
+    margin: 0 0 8px;
+    color: #102b50;
+    font-size: 24px;
+}
+
+.register-description {
+    margin: 0 0 24px;
+    color: #738096;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.register-page .form-group {
+    margin-bottom: 17px;
+}
+
+.register-page label {
+    display: block;
+    margin-bottom: 7px;
+    color: #263750;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.register-page input {
+    display: block;
+    width: 100%;
+    height: 46px;
+    padding: 0 12px;
+    border: 1px solid #dce3ed;
+    border-radius: 8px;
+    background: #fbfcfe;
+    color: #17243a;
+    font: inherit;
+    font-size: 14px;
+}
+
+.register-page input:focus {
+    outline: none;
+    border-color: #b58a28;
+    box-shadow: 0 0 0 3px rgba(181, 138, 40, .12);
+}
+
+.register-page .register-button {
+    width: 100%;
+    min-height: 48px;
+    margin-top: 6px;
+    border: 0;
+    border-radius: 8px;
+    background: #102b50;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.register-page .register-button:hover {
+    background: #1a426f;
+}
+
+.register-page .login-prompt {
+    margin: 22px 0 0;
+    color: #738096;
+    text-align: center;
+    font-size: 14px;
+}
+
+.register-page a {
+    color: #a47a19;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.register-page a:hover {
+    text-decoration: underline;
+}
+
+.register-page .message {
+    margin-bottom: 20px;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.register-page .message p {
+    margin-bottom: 0;
+}
+
+.register-page .error {
+    background: #fff0f0;
+    border: 1px solid #f2c6c6;
+    color: #a32626;
+}
+
+.register-page .success {
+    background: #ecf9f0;
+    border: 1px solid #b8e5c5;
+    color: #176b36;
+}
+
+.register-page .back-home {
+    margin-top: 22px;
+    font-size: 14px;
+}
+
+.register-page .back-home a {
+    color: #62738a;
+    font-weight: 500;
+}
+
+.register-page .register-footer {
+    margin-top: 20px;
+    color: #8a96a7;
+    font-size: 12px;
+    text-align: center;
+}
+
+@media (max-width: 480px) {
+    .register-card {
+        padding: 25px 20px;
+    }
+}

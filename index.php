@@ -74,10 +74,10 @@ $loggedIn = is_logged_in();
                 </div>
                 <div class="about-side">
                     <p class="about-copy">
-                        TechLink Wealth Investments Limited brings technology
-                        professionals into a savings and credit society. The aim is
-                        simple: pool discipline, keep a clear record of contributions,
-                        and consider credit only where membership and records support it.
+                        From students writing their first lines of code to professionals 
+                        building careers in technology, TechLink Wealth Investments Limited
+                         provides a trusted platform to save, grow wealth,
+                          and access financial opportunities together.
                     </p>
                     <ul class="about-points">
                         <li>
@@ -108,7 +108,7 @@ $loggedIn = is_logged_in();
 
         <section class="section" id="services">
             <p class="kicker">What members use</p>
-            <h2>The services on this account.</h2>
+            <h2>The services on this platform.</h2>
             <div class="service-list">
                 <article class="service-card">
                     <div class="service-photo" role="img" aria-label="Member savings" style="background-image: url('images/service-1.jpg')"></div>

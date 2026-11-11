@@ -1,0 +1,313 @@
+/* ---------- Public site ---------- */
+
+.topbar {
+    background: var(--green-deep);
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 0.82rem;
+    letter-spacing: 0.04em;
+    text-align: center;
+    padding: 0.45rem 1rem;
+}
+
+.site-header {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 0.85rem clamp(1.1rem, 4vw, 4rem);
+    background: rgba(255, 255, 255, 0.94);
+    border-bottom: 1px solid var(--line);
+    backdrop-filter: blur(10px);
+}
+
+.site-nav {
+    display: flex;
+    align-items: center;
+    gap: 1.35rem;
+}
+
+.site-nav a {
+    color: var(--muted);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.site-nav a:hover { color: var(--green); }
+
+.hero {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: clamp(30rem, 82vh, 46rem);
+    padding: clamp(2.5rem, 6vw, 5rem) clamp(4rem, 7vw, 6rem) clamp(2.5rem, 6vw, 5rem) clamp(1.1rem, 4vw, 4rem);
+    overflow: hidden;
+    background: var(--green-deep);
+    border-bottom: 1px solid var(--line);
+}
+
+/* Slideshow: photos live in /images (hero.jpg, hero-2.jpg, hero-3.jpg) */
+.hero-slides { position: absolute; inset: 0; }
+
+.hero-slide {
+    position: absolute;
+    inset: 0;
+    background-color: var(--green);
+    background-position: center;
+    background-size: cover;
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+.hero-slide.is-active { opacity: 1; }
+
+/* Dark wash on the left only, so the photo stays clear on the right */
+.hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: linear-gradient(90deg, rgba(7, 31, 24, 0.72) 0%, rgba(7, 31, 24, 0.42) 45%, rgba(7, 31, 24, 0.06) 100%);
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 40rem;
+}
+
+.hero .kicker { color: var(--gold); }
+
+.hero h1 {
+    max-width: 14ch;
+    font-size: clamp(2.5rem, 5.4vw, 4.4rem);
+    color: #fff;
+    text-shadow: 0 2px 18px rgba(0, 0, 0, 0.35);
+}
+
+.lede {
+    max-width: 38rem;
+    margin: 1rem 0 1.5rem;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1.12rem;
+    text-shadow: 0 1px 10px rgba(0, 0, 0, 0.3);
+}
+
+.hero .btn-ghost {
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.65);
+}
+
+.hero .btn-ghost:hover { background: rgba(255, 255, 255, 0.14); }
+
+/* Text slides in over the photo each time the image changes */
+@keyframes hero-slide-in {
+    from { opacity: 0; transform: translateX(-56px); }
+    to   { opacity: 1; transform: none; }
+}
+
+.hero-content.is-animating > * {
+    animation: hero-slide-in 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.hero-content.is-animating > *:nth-child(2) { animation-delay: 0.12s; }
+.hero-content.is-animating > *:nth-child(3) { animation-delay: 0.24s; }
+.hero-content.is-animating > *:nth-child(4) { animation-delay: 0.36s; }
+
+/* Next button on the right margin */
+.hero-next {
+    position: absolute;
+    top: 50%;
+    right: clamp(0.8rem, 2.5vw, 2rem);
+    z-index: 3;
+    width: 3rem;
+    height: 3rem;
+    transform: translateY(-50%);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    border-radius: 50%;
+    background: rgba(7, 31, 24, 0.35);
+    color: #fff;
+    font-size: 2rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+.hero-next:hover { background: var(--gold); border-color: var(--gold); color: var(--green-deep); }
+
+.hero-dots {
+    position: absolute;
+    right: clamp(0.8rem, 2.5vw, 2rem);
+    bottom: 1.4rem;
+    z-index: 3;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.hero-dots button {
+    width: 0.7rem;
+    height: 0.7rem;
+    padding: 0;
+    border: 1px solid #fff;
+    border-radius: 50%;
+    background: transparent;
+    cursor: pointer;
+}
+
+.hero-dots button.is-active { background: var(--gold); border-color: var(--gold); }
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+}
+
+.band {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border-bottom: 1px solid var(--line);
+    background: #fff;
+}
+
+.band article {
+    padding: 1.25rem 1.3rem;
+    border-right: 1px solid var(--line);
+}
+
+.band article:last-child { border-right: 0; }
+.band strong { display: block; color: var(--green); font-family: var(--serif); font-size: 1.2rem; }
+.band span { color: var(--muted); font-size: 0.9rem; }
+
+.section {
+    padding: clamp(2.4rem, 5vw, 4rem) clamp(1.1rem, 4vw, 4rem);
+}
+
+.section h2 {
+    max-width: 18ch;
+    margin-bottom: 0.8rem;
+    font-size: clamp(1.8rem, 3vw, 2.6rem);
+    color: var(--green-deep);
+}
+
+.split {
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    gap: clamp(1.5rem, 4vw, 4rem);
+    align-items: start;
+}
+
+.about-copy {
+    color: var(--muted);
+    font-size: 1.08rem;
+    padding-top: 0.4rem;
+    border-top: 3px solid var(--gold);
+}
+
+.about-points {
+    margin: 1.5rem 0 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--line);
+}
+
+.about-points li {
+    display: grid;
+    grid-template-columns: 3.5rem 1fr;
+    gap: 1rem;
+    padding: 1.15rem 0;
+    border-bottom: 1px solid var(--line);
+}
+
+.about-points span {
+    color: var(--gold-deep);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+}
+
+.about-points h3 { margin-bottom: 0.25rem; font-size: 1.25rem; color: var(--green-deep); }
+.about-points p { color: var(--muted); }
+
+/* Service cards: photos live in /images (service-1.jpg ... service-4.jpg) */
+.service-list {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
+    margin-top: 1.5rem;
+}
+
+.service-card {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.service-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow);
+}
+
+.service-photo {
+    aspect-ratio: 4 / 3;
+    background-color: var(--green);
+    background-position: center;
+    background-size: cover;
+}
+
+.service-body { padding: 1.1rem 1.2rem 1.4rem; }
+.service-body h3 { margin-bottom: 0.4rem; font-size: 1.25rem; color: var(--green-deep); }
+.service-body p { color: var(--muted); }
+
+.site-footer {
+    background: var(--green-deep);
+    color: rgba(255, 255, 255, 0.75);
+    padding: 2.2rem clamp(1.1rem, 4vw, 4rem) 1.5rem;
+}
+
+.site-footer strong {
+    display: block;
+    margin-bottom: 0.25rem;
+    color: #fff;
+    font-family: var(--serif);
+    font-size: 1.2rem;
+}
+
+.site-footer .fine {
+    max-width: 46rem;
+    margin-top: 1rem;
+    font-size: 0.82rem;
+    color: rgba(255, 255, 255, 0.55);
+}
+
+/* Scroll reveal (classes are added by the script at the bottom of index.php) */
+.reveal {
+    opacity: 0;
+    transition: opacity 0.7s ease, transform 0.8s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.reveal-up { transform: translateY(36px); }
+.reveal-left { transform: translateX(-56px); }
+.reveal-right { transform: translateX(56px); }
+
+.reveal.is-visible {
+    opacity: 1;
+    transform: none;
+}
+
+/* Cards keep their hover lift while the reveal classes stay on permanently */
+.service-card.reveal {
+    transition: opacity 0.7s ease, transform 0.8s cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 0.25s;
+}
+
+.service-card.reveal.is-visible:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow);
+    transition-delay: 0ms !important;
+    transition-duration: 0.2s;
+}

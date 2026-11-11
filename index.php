@@ -37,13 +37,17 @@ $loggedIn = is_logged_in();
 
     <main>
         <section class="hero" id="home">
-            <div>
+            <div class="hero-slides" aria-hidden="true">
+                <div class="hero-slide is-active" style="background-image: url('images/hero.jpg')"></div>
+                <div class="hero-slide" style="background-image: url('images/hero-2.jpg')"></div>
+                <div class="hero-slide" style="background-image: url('images/hero-3.jpg')"></div>
+            </div>
+
+            <div class="hero-content is-animating">
                 <p class="kicker">TechLink Wealth Investments Limited</p>
                 <h1>A society for people who build, save, and grow.</h1>
                 <p class="lede">
-                    Members contribute together, follow every recorded shilling,
-                    and apply for credit from one secure account. Built for
-                    technology professionals who want the discipline of a SACCO.
+                    Members contribute together, track every shilling, and access credit from one secure account. Built for tech professionals, students, and enthusiasts who want to grow their financial future.
                 </p>
                 <div class="actions">
                     <a class="btn btn-gold" href="register.php">Become a member</a>
@@ -51,27 +55,15 @@ $loggedIn = is_logged_in();
                 </div>
             </div>
 
-            <aside class="statement" aria-label="Illustrative member statement">
-                <header>
-                    <div>
-                        <p>Member statement</p>
-                        <strong>Illustrative account</strong>
-                    </div>
-                    <p>KES</p>
-                </header>
-                <div class="statement-row"><span>Share savings</span><b>Recorded</b></div>
-                <div class="statement-row"><span>Deposits</span><b>Tracked</b></div>
-                <div class="statement-row"><span>Credit</span><b>On application</b></div>
-                <div class="statement-row"><span>Status</span><b>Member review</b></div>
-                <footer>Sample layout only. Live balances appear after you sign in.</footer>
-            </aside>
+            <button type="button" class="hero-next" aria-label="Next image">&rsaquo;</button>
+            <div class="hero-dots"></div>
         </section>
 
         <section class="band">
             <article><strong>Savings</strong><span>Contributions held against your name</span></article>
             <article><strong>Credit</strong><span>Applications reviewed by the society</span></article>
             <article><strong>Records</strong><span>Deposits, receipts, and status in one book</span></article>
-            <article><strong>One sign-in</strong><span>Members and staff use the same door</span></article>
+            <article><strong>Transactions</strong><span>Simple and transparent processes</span></article>
         </section>
 
         <section class="section" id="about">
@@ -80,12 +72,37 @@ $loggedIn = is_logged_in();
                     <p class="kicker">Who we are</p>
                     <h2>Collective capital, personal accountability.</h2>
                 </div>
-                <p class="about-copy">
-                    TechLink Wealth Investments Limited brings technology
-                    professionals into a savings and credit society. The aim is
-                    simple: pool discipline, keep a clear record of contributions,
-                    and consider credit only where membership and records support it.
-                </p>
+                <div class="about-side">
+                    <p class="about-copy">
+                        TechLink Wealth Investments Limited brings technology
+                        professionals into a savings and credit society. The aim is
+                        simple: pool discipline, keep a clear record of contributions,
+                        and consider credit only where membership and records support it.
+                    </p>
+                    <ul class="about-points">
+                        <li>
+                            <span>01</span>
+                            <div>
+                                <h3>Pool discipline</h3>
+                                <p>Members contribute together and build savings through regular deposits.</p>
+                            </div>
+                        </li>
+                        <li>
+                            <span>02</span>
+                            <div>
+                                <h3>A clear record</h3>
+                                <p>Every contribution is recorded against your membership, with dates and amounts.</p>
+                            </div>
+                        </li>
+                        <li>
+                            <span>03</span>
+                            <div>
+                                <h3>Credit with care</h3>
+                                <p>Credit is considered only where membership and records support it.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </section>
 
@@ -93,30 +110,30 @@ $loggedIn = is_logged_in();
             <p class="kicker">What members use</p>
             <h2>The services on this account.</h2>
             <div class="service-list">
-                <article>
-                    <span>01</span>
-                    <div>
+                <article class="service-card">
+                    <div class="service-photo" role="img" aria-label="Member savings" style="background-image: url('images/service-1.jpg')"></div>
+                    <div class="service-body">
                         <h3>Member savings</h3>
                         <p>See the savings entries posted to your membership, with dates and amounts.</p>
                     </div>
                 </article>
-                <article>
-                    <span>02</span>
-                    <div>
+                <article class="service-card">
+                    <div class="service-photo" role="img" aria-label="Deposit records" style="background-image: url('images/service-2.jpg')"></div>
+                    <div class="service-body">
                         <h3>Deposit records</h3>
                         <p>Follow deposits, including M-Pesa receipt numbers stored against a transaction.</p>
                     </div>
                 </article>
-                <article>
-                    <span>03</span>
-                    <div>
+                <article class="service-card">
+                    <div class="service-photo" role="img" aria-label="Credit applications" style="background-image: url('images/service-3.jpg')"></div>
+                    <div class="service-body">
                         <h3>Credit applications</h3>
                         <p>Request a loan, state its purpose, and track whether it is pending, approved, or declined.</p>
                     </div>
                 </article>
-                <article>
-                    <span>04</span>
-                    <div>
+                <article class="service-card">
+                    <div class="service-photo" role="img" aria-label="Staff workspace" style="background-image: url('images/service-4.jpg')"></div>
+                    <div class="service-body">
                         <h3>Staff workspace</h3>
                         <p>Administrators approve membership, post eligible deposits to savings, and decide credit.</p>
                     </div>
@@ -136,5 +153,114 @@ $loggedIn = is_logged_in();
         </p>
         <p class="fine">&copy; <?= date("Y") ?> TechLink Wealth Investments Limited</p>
     </footer>
+    <script>
+    (function () {
+        var hero = document.getElementById("home");
+        var content = hero.querySelector(".hero-content");
+        var next = hero.querySelector(".hero-next");
+        var dotsBox = hero.querySelector(".hero-dots");
+        var slides = [].slice.call(hero.querySelectorAll(".hero-slide"));
+        var dots = [], current = 0, timer = null;
+
+        // Drop any slide whose image file is missing, so no blank slides appear.
+        Promise.all(slides.map(function (slide) {
+            return new Promise(function (resolve) {
+                var m = /url\(["']?([^"')]+)/.exec(slide.style.backgroundImage);
+                var img = new Image();
+                img.onload = function () { resolve(true); };
+                img.onerror = function () { resolve(false); };
+                img.src = m ? m[1] : "";
+            });
+        })).then(function (ok) {
+            slides = slides.filter(function (slide, k) {
+                if (!ok[k]) { slide.remove(); }
+                return ok[k];
+            });
+            init();
+        });
+
+        function show(n) {
+            current = (n + slides.length) % slides.length;
+            slides.forEach(function (s, k) { s.classList.toggle("is-active", k === current); });
+            dots.forEach(function (d, k) { d.classList.toggle("is-active", k === current); });
+            content.classList.remove("is-animating");
+            void content.offsetWidth;               // restart the text slide-in
+            content.classList.add("is-animating");
+        }
+
+        function start() {
+            stop();
+            if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { return; }
+            timer = setInterval(function () { show(current + 1); }, 6500);
+        }
+        function stop() { if (timer) { clearInterval(timer); timer = null; } }
+
+        function init() {
+            if (slides.length === 0) { next.hidden = true; dotsBox.hidden = true; return; }
+            slides[0].classList.add("is-active");
+            if (slides.length < 2) { next.hidden = true; dotsBox.hidden = true; return; }
+
+            slides.forEach(function (s, k) {
+                var d = document.createElement("button");
+                d.type = "button";
+                d.setAttribute("aria-label", "Show image " + (k + 1));
+                d.addEventListener("click", function () { show(k); start(); });
+                dotsBox.appendChild(d);
+                dots.push(d);
+            });
+            dots[0].classList.add("is-active");
+
+            next.addEventListener("click", function () { show(current + 1); start(); });
+            hero.addEventListener("mouseenter", stop);
+            hero.addEventListener("mouseleave", start);
+            start();
+        }
+    })();
+    </script>
+    <script>
+    // Scroll reveal: text and boxes slide in every time they enter the screen.
+    (function () {
+        if (!("IntersectionObserver" in window)) { return; }
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { return; }
+
+        var groups = [
+            [".section .kicker, .section h2", "reveal-left"],
+            [".about-copy", "reveal-right"],
+            [".about-points li", "reveal-right"],
+            [".band article", "reveal-up"],
+            [".service-card", "reveal-up"],
+            [".site-footer", "reveal-up"]
+        ];
+        var targets = [];
+
+        groups.forEach(function (g) {
+            [].slice.call(document.querySelectorAll(g[0])).forEach(function (el) {
+                var siblings = [].slice.call(el.parentNode.children).filter(function (n) {
+                    return n.matches(g[0]);
+                });
+                var delay = Math.min(siblings.indexOf(el), 4) * 110;
+                el.classList.add("reveal", g[1]);
+                el.style.transitionDelay = delay + "ms";
+                el.dataset.revealDelay = delay;
+                targets.push(el);
+            });
+        });
+
+        // Runs every time an item enters or leaves the screen, scrolling down or up.
+        // Shows at 15% visible, hides only when fully off-screen (avoids flicker at the edge).
+        var io = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                var el = entry.target;
+                if (entry.intersectionRatio >= 0.15) {
+                    el.classList.add("is-visible");
+                } else if (entry.intersectionRatio === 0) {
+                    el.classList.remove("is-visible");
+                }
+            });
+        }, { threshold: [0, 0.15], rootMargin: "0px 0px -6% 0px" });
+
+        targets.forEach(function (el) { io.observe(el); });
+    })();
+    </script>
 </body>
 </html>

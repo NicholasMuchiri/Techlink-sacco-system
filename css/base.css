@@ -1,0 +1,64 @@
+/* Base: design tokens, reset, typography */
+
+:root {
+    --green: #0c3b2e;
+    --green-2: #145844;
+    --green-deep: #071f18;
+    --gold: #c4a15a;
+    --gold-deep: #8d6d2f;
+    --cream: #f4f0e6;
+    --paper: #f7f5f0;
+    --white: #ffffff;
+    --ink: #14241c;
+    --muted: #5c6b63;
+    --line: #e3dccf;
+    --danger: #8e2b2b;
+    --ok: #1c6b40;
+    --warn: #8a5a12;
+    --serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+    --sans: "Source Sans 3", "Segoe UI", sans-serif;
+    --shadow: 0 16px 40px rgba(7, 31, 24, 0.08);
+}
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+    margin: 0;
+    color: var(--ink);
+    background: var(--paper);
+    font-family: var(--sans);
+    font-size: 1.02rem;
+    line-height: 1.55;
+}
+
+a { color: inherit; }
+
+h1, h2, h3, h4 {
+    font-family: var(--serif);
+    font-weight: 650;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    margin: 0;
+}
+
+p { margin: 0; }
+
+button, input, textarea, select { font: inherit; }
+
+:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 2px;
+}
+
+.kicker {
+    margin: 0 0 0.45rem;
+    color: var(--gold-deep);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}

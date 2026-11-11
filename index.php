@@ -1,102 +1,140 @@
-
+<?php
+require_once "includes/app.php";
+$loggedIn = is_logged_in();
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TechLink Wealth Investments Limited</title>
-    <meta name="description" content="TechLink Wealth Investments Limited — Innovate. Invest. Grow.">
-    <link rel="stylesheet" href="style.css">
+    <meta name="description" content="TechLink Wealth is a savings and credit society for technology professionals. Innovate. Invest. Grow.">
+    <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
+    <div class="topbar">Savings · Credit · Member records &nbsp;·&nbsp; Innovate. Invest. Grow.</div>
 
-    <header class="navbar">
-        <a href="index.php" class="logo">TechLink <span>Wealth</span></a>
-
-        <nav>
-            <a href="#home">Home</a>
+    <header class="site-header">
+        <a class="brand" href="index.php">
+            <span class="mark">TW</span>
+            <span>
+                <strong>TechLink Wealth</strong>
+                <small>Savings &amp; Credit</small>
+            </span>
+        </a>
+        <nav class="site-nav">
             <a href="#about">About</a>
             <a href="#services">Services</a>
-            <a href="login.php" class="login-btn">Member Login</a>
+            <?php if ($loggedIn): ?>
+                <a href="logout.php">Sign out</a>
+                <a class="btn btn-green" href="dashboard.php">My dashboard</a>
+            <?php else: ?>
+                <a href="register.php">Open an account</a>
+                <a class="btn btn-green" href="login.php">Sign in</a>
+            <?php endif; ?>
         </nav>
     </header>
 
     <main>
         <section class="hero" id="home">
-            <div class="hero-content">
-                <p class="eyebrow">TECHNOLOGY • INVESTMENT • GROWTH</p>
-
-                <h1>Innovate.<br>Invest. <span>Grow.</span></h1>
-
-                <p class="intro">
-                    A community-driven vision bringing technology
-                    professionals together to explore investment
-                    opportunities and build a stronger financial future.
+            <div>
+                <p class="kicker">TechLink Wealth Investments Limited</p>
+                <h1>A society for people who build, save, and grow.</h1>
+                <p class="lede">
+                    Members contribute together, follow every recorded shilling,
+                    and apply for credit from one secure account. Built for
+                    technology professionals who want the discipline of a SACCO.
                 </p>
-
-                <div class="hero-buttons">
-                    <a href="#about" class="primary-btn">Discover Our Vision</a>
-                    <a href="login.php" class="secondary-btn">Member Portal</a>
+                <div class="actions">
+                    <a class="btn btn-gold" href="register.php">Become a member</a>
+                    <a class="btn btn-ghost" href="login.php">Member &amp; staff sign in</a>
                 </div>
             </div>
 
-            <div class="hero-card">
-                <div class="icon-circle">TW</div>
-                <p class="card-label">OUR VISION</p>
-                <h2>Building Wealth Through Innovation</h2>
-                <p>Connecting technology talent with opportunities for collective growth.</p>
-                <div class="card-line"></div>
-                <p class="tagline">Innovate. Invest. Grow.</p>
+            <aside class="statement" aria-label="Illustrative member statement">
+                <header>
+                    <div>
+                        <p>Member statement</p>
+                        <strong>Illustrative account</strong>
+                    </div>
+                    <p>KES</p>
+                </header>
+                <div class="statement-row"><span>Share savings</span><b>Recorded</b></div>
+                <div class="statement-row"><span>Deposits</span><b>Tracked</b></div>
+                <div class="statement-row"><span>Credit</span><b>On application</b></div>
+                <div class="statement-row"><span>Status</span><b>Member review</b></div>
+                <footer>Sample layout only. Live balances appear after you sign in.</footer>
+            </aside>
+        </section>
+
+        <section class="band">
+            <article><strong>Savings</strong><span>Contributions held against your name</span></article>
+            <article><strong>Credit</strong><span>Applications reviewed by the society</span></article>
+            <article><strong>Records</strong><span>Deposits, receipts, and status in one book</span></article>
+            <article><strong>One sign-in</strong><span>Members and staff use the same door</span></article>
+        </section>
+
+        <section class="section" id="about">
+            <div class="split">
+                <div>
+                    <p class="kicker">Who we are</p>
+                    <h2>Collective capital, personal accountability.</h2>
+                </div>
+                <p class="about-copy">
+                    TechLink Wealth Investments Limited brings technology
+                    professionals into a savings and credit society. The aim is
+                    simple: pool discipline, keep a clear record of contributions,
+                    and consider credit only where membership and records support it.
+                </p>
             </div>
         </section>
 
-        <section class="about section" id="about">
-            <p class="eyebrow">WHO WE ARE</p>
-            <h2>A vision for a connected financial future</h2>
-            <p>
-                TechLink Wealth Investments Limited aims to bring
-                technology professionals together around responsible
-                investing, financial discipline and shared opportunities.
-            </p>
-        </section>
-
-        <section class="services section" id="services">
-            <p class="eyebrow">OUR PLANNED SERVICES</p>
-            <h2>Designed around our members</h2>
-
-            <div class="service-grid">
-                <article class="service">
-                    <h3>Member Savings</h3>
-                    <p>Tools for tracking contributions and account records.</p>
+        <section class="section" id="services">
+            <p class="kicker">What members use</p>
+            <h2>The services on this account.</h2>
+            <div class="service-list">
+                <article>
+                    <span>01</span>
+                    <div>
+                        <h3>Member savings</h3>
+                        <p>See the savings entries posted to your membership, with dates and amounts.</p>
+                    </div>
                 </article>
-
-                <article class="service">
-                    <h3>Digital Payments</h3>
-                    <p>Planned M-Pesa integration with verified transaction records.</p>
+                <article>
+                    <span>02</span>
+                    <div>
+                        <h3>Deposit records</h3>
+                        <p>Follow deposits, including M-Pesa receipt numbers stored against a transaction.</p>
+                    </div>
                 </article>
-
-                <article class="service">
-                    <h3>Loan Management</h3>
-                    <p>Tools for applications, review and repayment tracking.</p>
+                <article>
+                    <span>03</span>
+                    <div>
+                        <h3>Credit applications</h3>
+                        <p>Request a loan, state its purpose, and track whether it is pending, approved, or declined.</p>
+                    </div>
                 </article>
-
-                <article class="service">
-                    <h3>Member Dashboard</h3>
-                    <p>A secure place to view personal account information.</p>
+                <article>
+                    <span>04</span>
+                    <div>
+                        <h3>Staff workspace</h3>
+                        <p>Administrators approve membership, post eligible deposits to savings, and decide credit.</p>
+                    </div>
                 </article>
             </div>
         </section>
     </main>
 
-    <footer>
-        <p>TechLink Wealth Investments Limited</p>
-        <p>Innovate. Invest. Grow.</p>
-        <p class="disclaimer">
-            Website under development. Services are subject to applicable
-            registration, authorization and legal requirements.
+    <footer class="site-footer">
+        <strong>TechLink Wealth Investments Limited</strong>
+        Innovate. Invest. Grow.
+        <p class="fine">
+            This website is in active development. Membership, savings, and credit
+            remain subject to the society’s rules and to any registration or
+            authorisation required by law. A database record is not, by itself,
+            proof that funds were received.
         </p>
-        <p>&copy; 2026 TechLink Wealth Investments Limited</p>
+        <p class="fine">&copy; <?= date("Y") ?> TechLink Wealth Investments Limited</p>
     </footer>
-
 </body>
 </html>

@@ -1,88 +1,94 @@
-
 <?php
-session_start();
+require_once "includes/app.php";
 
-if (!isset($_SESSION["member_id"])) {
-    header("Location: login.php");
+if (is_logged_in() && $_SESSION["role"] === "admin") {
+    header("Location: admin_dashboard.php");
     exit;
 }
 
-$memberName = htmlspecialchars(
-    $_SESSION["member_name"] ?? "Member",
-    ENT_QUOTES,
-    "UTF-8"
-);
+$member = require_member(false);
+$memberId = (int) $member["id"];
+$totalSavings = 0.0;
+$loanCount = 0;
+$transactionCount = 0;
+
+try {
+    $savingsStmt = $pdo->prepare("SELECT COALESCE(SUM(amount), 0) AS total FROM savings WHERE member_id = ?");
+    $savingsStmt->execute([$memberId]);
+    $totalSavings = (float) $savingsStmt->fetch()["total"];
+
+    $loanStmt = $pdo->prepare("SELECT COUNT(*) AS total FROM loans WHERE member_id = ?");
+    $loanStmt->execute([$memberId]);
+    $loanCount = (int) $loanStmt->fetch()["total"];
+
+    $txnStmt = $pdo->prepare("SELECT COUNT(*) AS total FROM transactions WHERE member_id = ?");
+    $txnStmt->execute([$memberId]);
+    $transactionCount = (int) $txnStmt->fetch()["total"];
+} catch (PDOException $e) {
+    error_log("Member overview failed: " . $e->getMessage());
+}
+
+$status = strtolower((string) $member["membership_status"]);
+portal_open("Overview", "home");
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Member Dashboard | TechLink Wealth</title>
-    <link rel="stylesheet" href="dashboard.css">
-</head>
-<body class="dashboard-page">
 
-    <header class="dashboard-header">
-        <div class="dashboard-brand">
-            <div class="dashboard-logo">TW</div>
-            <div>
-                <h1>TechLink Wealth</h1>
-                <p>Innovate. Invest. Grow.</p>
-            </div>
-        </div>
+<?php if ($status !== "approved" || isset($_GET["notice"])): ?>
+    <div class="alert <?= $status === "rejected" ? "alert-error" : "" ?>">
+        Membership status: <strong><?= e(ucfirst($status)) ?></strong>.
+        Savings history and new credit applications stay closed until the society approves the account.
+    </div>
+<?php endif; ?>
 
-        <a class="logout-button" href="logout.php">Log Out</a>
-    </header>
+<section class="stats">
+    <article class="stat">
+        <span>Recorded savings</span>
+        <strong><?= e(money($totalSavings)) ?></strong>
+    </article>
+    <article class="stat">
+        <span>Transactions</span>
+        <strong><?= $transactionCount ?></strong>
+    </article>
+    <article class="stat">
+        <span>Loan records</span>
+        <strong><?= $loanCount ?></strong>
+    </article>
+</section>
 
-    <main class="dashboard-container">
-        <section class="welcome-section">
-            <p class="eyebrow">MEMBER PORTAL</p>
-            <h2>Welcome, <?= $memberName ?>!</h2>
-            <p>Manage your membership and explore your account services.</p>
-        </section>
+<section class="cards">
+    <a class="menu-card" href="my_savings.php">
+        <h3>Savings</h3>
+        <p>Balances and the entries posted to your membership.</p>
+        <span>Open book</span>
+    </a>
+    <a class="menu-card" href="my_transactions.php">
+        <h3>Transactions</h3>
+        <p>Deposits and other activity stored on your account.</p>
+        <span>View activity</span>
+    </a>
+    <a class="menu-card" href="my_loans.php">
+        <h3>Loans</h3>
+        <p>Applications you have submitted and their current status.</p>
+        <span>View credit</span>
+    </a>
+    <a class="menu-card" href="deposit.php">
+        <h3>Make a deposit</h3>
+        <p>Report an M-Pesa or cash deposit for the society to confirm.</p>
+        <span>New deposit</span>
+    </a>
+    <a class="menu-card" href="apply_loan.php">
+        <h3>Apply for credit</h3>
+        <p>Request an amount and state what the funds are for.</p>
+        <span>New application</span>
+    </a>
+    <a class="menu-card" href="my_profile.php">
+        <h3>Profile</h3>
+        <p>Your register details, phone number and password.</p>
+        <span>Manage account</span>
+    </a>
+</section>
 
-        <section class="dashboard-grid">
-            <article class="dashboard-card">
-                <div class="card-icon">💰</div>
-                <h3>My Savings</h3>
-                <p>View your savings records and balances.</p>
-<a href="my_savings.php">View My Savings</a>            </article>
+<p class="note" style="margin-top:1rem;">
+    Figures are totals of records in the society books. They do not independently confirm that money was received.
+</p>
 
-            <article class="dashboard-card">
-                <div class="card-icon">↔</div>
-                <h3>Transactions</h3>
-                <p>Review deposits and other account activity.</p>
-                <a href="my_transactions.php">View My Transactions</a>
-            </article>
-
-            <article class="dashboard-card">
-                <div class="card-icon">📋</div>
-                <h3>My Loans</h3>
-                <p>Explore loan applications and their status.</p>
-                <a href="my_loans.php">View My Loans</a>
-            </article>
-
-            <article class="dashboard-card">
-                <div class="card-icon">👤</div>
-                <h3>My Profile</h3>
-                <p>View your member account details.</p>
-                <a href="my_profile.php">View My Profile</a>
-            </article>
-        </section>
-
-        <div class="dashboard-notice">
-            <strong>Account security</strong>
-            <p>
-                This dashboard is under development. Financial balances
-                and transactions are not yet connected to live account records.
-            </p>
-        </div>
-    </main>
-
-    <footer class="dashboard-footer">
-        &copy; <?= date("Y") ?> TechLink Wealth Investments Limited
-    </footer>
-
-</body>
-</html>
+<?php portal_close(); ?>

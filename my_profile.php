@@ -1,238 +1,147 @@
-
 <?php
-session_start();
-require_once "db.php";
+require_once "includes/app.php";
 
-// Only logged-in members can access this page.
-if (!isset($_SESSION["member_id"])) {
-    header("Location: login.php");
-    exit;
-}
+$member = require_member(false);
+$memberId = (int) $member["id"];
+$error = "";
+$success = "";
 
-if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "member") {
-    header("Location: login.php");
-    exit;
-}
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $action = $_POST["action"] ?? "";
 
-$memberId = (int) $_SESSION["member_id"];
-
-try {
-    $stmt = $pdo->prepare("
-        SELECT full_name, email, phone, membership_status, created_at
-        FROM members
-        WHERE id = ?
-          AND role = 'member'
-    ");
-
-    $stmt->execute([$memberId]);
-    $member = $stmt->fetch();
-
-    if (!$member) {
-        http_response_code(404);
-        exit("Member profile not found.");
-    }
-} catch (PDOException $e) {
-    error_log("Unable to load member profile: " . $e->getMessage());
-    http_response_code(500);
-    exit("Unable to load your profile. Please try again later.");
-}
-
-function escapeProfile($value) {
-    return htmlspecialchars((string) ($value ?? ""), ENT_QUOTES, "UTF-8");
-}
-
-$status = strtolower((string) $member["membership_status"]);
-?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Profile | TechLink Wealth</title>
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            padding: 25px 15px;
-            background: #f3f6fb;
-            color: #243247;
-            font-family: Arial, sans-serif;
-        }
-
-        .container {
-            max-width: 750px;
-            margin: 0 auto;
-        }
-
-        .header {
-            background: #12376a;
-            color: white;
-            padding: 25px;
-            border-radius: 12px 12px 0 0;
-        }
-
-        .header h1 {
-            margin: 0 0 8px;
-        }
-
-        .header p {
-            margin: 0;
-            color: #dbeafe;
-        }
-
-        .profile-card {
-            background: white;
-            padding: 25px;
-            border-radius: 0 0 12px 12px;
-            box-shadow: 0 5px 18px rgba(0, 0, 0, 0.07);
-        }
-
-        .avatar {
-            width: 75px;
-            height: 75px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
-            border-radius: 50%;
-            background: #e0eaff;
-            color: #12376a;
-            font-size: 30px;
-            font-weight: bold;
-        }
-
-        .profile-row {
-            padding: 16px 0;
-            border-bottom: 1px solid #e5eaf1;
-        }
-
-        .label {
-            display: block;
-            margin-bottom: 7px;
-            color: #68778b;
-            font-size: 13px;
-        }
-
-        .value {
-            font-size: 16px;
-            font-weight: bold;
-            overflow-wrap: anywhere;
-        }
-
-        .status {
-            display: inline-block;
-            padding: 6px 12px;
-            border-radius: 20px;
-            background: #e5e7eb;
-            color: #374151;
-            font-size: 13px;
-        }
-
-        .status.approved {
-            background: #dcfce7;
-            color: #166534;
-        }
-
-        .status.pending {
-            background: #fef3c7;
-            color: #92400e;
-        }
-
-        .status.rejected {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .actions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-top: 25px;
-        }
-
-        .btn {
-            display: inline-block;
-            padding: 12px 18px;
-            border-radius: 7px;
-            background: #12376a;
-            color: white;
-            text-decoration: none;
-        }
-
-        .btn.secondary {
-            background: #e8eef7;
-            color: #12376a;
-        }
-
-        @media (max-width: 480px) {
-            .profile-card {
-                padding: 18px;
+    if (!csrf_valid("profile_csrf", $_POST["csrf_token"] ?? "")) {
+        $error = "This action expired. Refresh the page and try again.";
+    } elseif ($action === "phone") {
+        $phone = trim($_POST["phone"] ?? "");
+        if (!preg_match('/^[0-9+\-\s]{10,20}$/', $phone)) {
+            $error = "Please enter a valid phone number.";
+        } else {
+            try {
+                $stmt = $pdo->prepare("UPDATE members SET phone = ? WHERE id = ?");
+                $stmt->execute([$phone, $memberId]);
+                $_SESSION["profile_csrf"] = bin2hex(random_bytes(32));
+                header("Location: my_profile.php?saved=phone");
+                exit;
+            } catch (PDOException $e) {
+                error_log("Phone update failed: " . $e->getMessage());
+                $error = "Unable to update your phone number.";
             }
         }
-    </style>
-</head>
-<body>
-    <main class="container">
-        <header class="header">
-            <h1>My Profile</h1>
-            <p>TechLink Wealth Investments Limited</p>
-        </header>
+    } elseif ($action === "password") {
+        $current = $_POST["current_password"] ?? "";
+        $new = $_POST["new_password"] ?? "";
+        $confirm = $_POST["confirm_password"] ?? "";
 
-        <section class="profile-card">
-            <div class="avatar">
-                <?php
-                $name = trim((string) $member["full_name"]);
-                echo escapeProfile(
-                    $name !== "" ? strtoupper(substr($name, 0, 1)) : "M"
-                );
-                ?>
-            </div>
+        if ($current === "" || $new === "" || $confirm === "") {
+            $error = "Please complete all password fields.";
+        } elseif (strlen($new) < 8) {
+            $error = "Your new password must contain at least 8 characters.";
+        } elseif ($new !== $confirm) {
+            $error = "The new passwords do not match.";
+        } else {
+            try {
+                $stmt = $pdo->prepare("SELECT password_hash FROM members WHERE id = ? LIMIT 1");
+                $stmt->execute([$memberId]);
+                $row = $stmt->fetch();
 
-            <h2><?= escapeProfile($member["full_name"]) ?></h2>
-            <p>View your registered membership information.</p>
+                if (!$row || !password_verify($current, $row["password_hash"])) {
+                    $error = "Your current password is incorrect.";
+                } else {
+                    $upd = $pdo->prepare("UPDATE members SET password_hash = ? WHERE id = ?");
+                    $upd->execute([password_hash($new, PASSWORD_DEFAULT), $memberId]);
+                    session_regenerate_id(true);
+                    $_SESSION["profile_csrf"] = bin2hex(random_bytes(32));
+                    header("Location: my_profile.php?saved=password");
+                    exit;
+                }
+            } catch (PDOException $e) {
+                error_log("Password change failed: " . $e->getMessage());
+                $error = "Unable to change your password.";
+            }
+        }
+    } else {
+        $error = "That profile action is not valid.";
+    }
+}
 
-            <div class="profile-row">
-                <span class="label">Full Name</span>
-                <div class="value"><?= escapeProfile($member["full_name"]) ?></div>
-            </div>
+if (isset($_GET["saved"])) {
+    $success = $_GET["saved"] === "password" ? "Password changed." : "Phone number updated.";
+}
+$status = strtolower((string) $member["membership_status"]);
+$joined = strtotime((string) $member["created_at"]);
 
-            <div class="profile-row">
-                <span class="label">Email Address</span>
-                <div class="value"><?= escapeProfile($member["email"]) ?></div>
-            </div>
+$token = csrf_token("profile_csrf");
+portal_open("Profile", "profile");
+?>
 
-            <div class="profile-row">
-                <span class="label">Phone Number</span>
-                <div class="value"><?= escapeProfile($member["phone"]) ?></div>
-            </div>
+<section class="panel">
+    <p class="kicker">Membership</p>
+    <h2><?= e($member["full_name"]) ?></h2>
+    <p class="quiet">The details held on the society register.</p>
 
-            <div class="profile-row">
-                <span class="label">Membership Status</span>
-                <div class="value">
-                    <span class="status <?= escapeProfile($status) ?>">
-                        <?= escapeProfile(ucfirst($status)) ?>
-                    </span>
-                </div>
-            </div>
+    <dl class="profile-grid">
+        <div>
+            <dt>Full name</dt>
+            <dd><?= e($member["full_name"]) ?></dd>
+        </div>
+        <div>
+            <dt>Email</dt>
+            <dd><?= e($member["email"]) ?></dd>
+        </div>
+        <div>
+            <dt>Phone</dt>
+            <dd><?= e($member["phone"]) ?></dd>
+        </div>
+        <div>
+            <dt>Status</dt>
+            <dd><span class="pill <?= e($status) ?>"><?= e($status) ?></span></dd>
+        </div>
+        <div>
+            <dt>Registered</dt>
+            <dd><?= $joined ? e(date("d M Y", $joined)) : "—" ?></dd>
+        </div>
+    </dl>
+</section>
 
-            <div class="profile-row">
-                <span class="label">Registration Date</span>
-                <div class="value">
-                    <?= escapeProfile(date(
-                        "d M Y",
-                        strtotime($member["created_at"])
-                    )) ?>
-                </div>
-            </div>
+<section class="panel">
+    <h2>Update details</h2>
+    <?php if ($error !== ""): ?>
+        <div class="alert alert-error"><?= e($error) ?></div>
+    <?php endif; ?>
+    <?php if ($success !== ""): ?>
+        <div class="alert alert-success"><?= e($success) ?></div>
+    <?php endif; ?>
 
-            <div class="actions">
-                <a class="btn" href="dashboard.php">Back to Dashboard</a>
-                <a class="btn secondary" href="logout.php">Log Out</a>
-            </div>
-        </section>
-    </main>
-</body>
-</html>
+    <form method="POST" action="my_profile.php">
+        <input type="hidden" name="csrf_token" value="<?= e($token) ?>">
+        <input type="hidden" name="action" value="phone">
+        <div class="field">
+            <label for="phone">Phone number</label>
+            <input type="tel" id="phone" name="phone" autocomplete="tel" required value="<?= e($member["phone"]) ?>">
+        </div>
+        <button class="btn btn-green" type="submit">Save phone number</button>
+    </form>
+</section>
+
+<section class="panel">
+    <h2>Change password</h2>
+    <form method="POST" action="my_profile.php">
+        <input type="hidden" name="csrf_token" value="<?= e($token) ?>">
+        <input type="hidden" name="action" value="password">
+        <div class="field">
+            <label for="current_password">Current password</label>
+            <input type="password" id="current_password" name="current_password" autocomplete="current-password" required>
+        </div>
+        <div class="field">
+            <label for="new_password">New password</label>
+            <input type="password" id="new_password" name="new_password" minlength="8" autocomplete="new-password" required>
+        </div>
+        <div class="field">
+            <label for="confirm_password">Confirm new password</label>
+            <input type="password" id="confirm_password" name="confirm_password" minlength="8" autocomplete="new-password" required>
+        </div>
+        <button class="btn btn-green" type="submit">Change password</button>
+    </form>
+</section>
+
+<?php portal_close(); ?>

@@ -1,142 +1,158 @@
-
 <?php
-session_start();
-require_once "db.php";
+require_once "includes/app.php";
+require_admin();
 
-// Only logged-in administrators can access this page.
-if (
-    !isset($_SESSION["member_id"]) ||
-    !isset($_SESSION["role"]) ||
-    $_SESSION["role"] !== "admin"
-) {
-    header("Location: login.php");
-    exit;
+$error = "";
+
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $memberId = filter_input(INPUT_POST, "member_id", FILTER_VALIDATE_INT);
+    $action = $_POST["action"] ?? "";
+
+    if (!csrf_valid("membership_csrf", $_POST["csrf_token"] ?? "")) {
+        $error = "This action expired. Refresh the page and try again.";
+    } elseif (!$memberId || !in_array($action, ["approve", "reject"], true)) {
+        $error = "That membership action is not valid.";
+    } else {
+        $newStatus = $action === "approve" ? "approved" : "rejected";
+        $stmt = $pdo->prepare(
+            "UPDATE members
+             SET membership_status = ?
+             WHERE id = ?
+               AND role = 'member'
+               AND membership_status = 'pending'"
+        );
+        $stmt->execute([$newStatus, $memberId]);
+        $_SESSION["membership_csrf"] = bin2hex(random_bytes(32));
+        header("Location: admin_dashboard.php?updated=1");
+        exit;
+    }
 }
 
-// Fetch all registered members.
-$stmt = $pdo->query(
-    "SELECT id, full_name, email, phone,
-            membership_status, created_at
+$members = $pdo->query(
+    "SELECT id, full_name, email, phone, membership_status, created_at
      FROM members
      WHERE role = 'member'
      ORDER BY created_at DESC"
-);
+)->fetchAll();
 
-$members = $stmt->fetchAll();
+$counts = ["pending" => 0, "approved" => 0, "rejected" => 0];
+foreach ($members as $member) {
+    $key = strtolower((string) $member["membership_status"]);
+    if (isset($counts[$key])) {
+        $counts[$key]++;
+    }
+}
+
+$pendingLoans = 0;
+$pendingDeposits = 0;
+$unposted = 0;
+try {
+    $pendingLoans = (int) $pdo->query("SELECT COUNT(*) FROM loans WHERE loan_status = 'pending'")->fetchColumn();
+    $pendingDeposits = (int) $pdo->query(
+        "SELECT COUNT(*) FROM transactions WHERE transaction_type = 'deposit' AND transaction_status = 'pending'"
+    )->fetchColumn();
+    $unposted = (int) $pdo->query(
+        "SELECT COUNT(*) FROM transactions t
+         INNER JOIN members m ON m.id = t.member_id
+         LEFT JOIN savings s ON s.transaction_id = t.id
+         WHERE t.transaction_type = 'deposit' AND t.transaction_status = 'confirmed'
+           AND m.membership_status = 'approved' AND m.role = 'member' AND s.id IS NULL"
+    )->fetchColumn();
+} catch (PDOException $e) {
+    error_log("Admin overview counts failed: " . $e->getMessage());
+}
+
+$token = csrf_token("membership_csrf");
+portal_open("Members", "members");
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TechLink Admin Dashboard</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 25px;
-            font-family: Arial, sans-serif;
-            background: #f3f5f9;
-            color: #17233c;
-        }
+<?php if ($error !== ""): ?>
+    <div class="alert alert-error"><?= e($error) ?></div>
+<?php elseif (isset($_GET["updated"])): ?>
+    <div class="alert alert-success">Membership status updated.</div>
+<?php endif; ?>
 
-        .container {
-            max-width: 1100px;
-            margin: auto;
-        }
+<section class="stats">
+    <article class="stat"><span>Pending</span><strong><?= (int) $counts["pending"] ?></strong></article>
+    <article class="stat"><span>Approved</span><strong><?= (int) $counts["approved"] ?></strong></article>
+    <article class="stat"><span>Declined</span><strong><?= (int) $counts["rejected"] ?></strong></article>
+</section>
 
-        header {
-            background: #102747;
-            color: white;
-            padding: 24px;
-            border-radius: 12px;
-            margin-bottom: 25px;
-        }
+<section class="cards">
+    <a class="menu-card" href="admin_transactions.php">
+        <h3>Transactions</h3>
+        <p><?= $pendingDeposits ?> deposit(s) waiting for confirmation.</p>
+        <span>Review deposits</span>
+    </a>
+    <a class="menu-card" href="record_savings.php">
+        <h3>Record deposit</h3>
+        <p><?= $unposted ?> confirmed deposit(s) not yet in the savings book.</p>
+        <span>Post to savings</span>
+    </a>
+    <a class="menu-card" href="admin_loans.php">
+        <h3>Credit book</h3>
+        <p><?= $pendingLoans ?> loan application(s) pending.</p>
+        <span>Decide loans</span>
+    </a>
+    <a class="menu-card" href="admin_savings.php">
+        <h3>Savings book</h3>
+        <p>Balances by approved member.</p>
+        <span>View balances</span>
+    </a>
+</section>
 
-        header h1 {
-            margin-top: 0;
-        }
+<section class="panel">
+    <h2>Membership register</h2>
+    <p class="quiet">Approve or decline applications that are still pending.</p>
 
-        .table-wrapper {
-            overflow-x: auto;
-            background: white;
-            padding: 15px;
-            border-radius: 12px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th, td {
-            padding: 13px;
-            text-align: left;
-            border-bottom: 1px solid #e1e6ee;
-        }
-
-        th {
-            background: #eaf0f8;
-        }
-
-        .pending {
-            color: #b77900;
-            font-weight: bold;
-        }
-
-        .approved {
-            color: #16804a;
-            font-weight: bold;
-        }
-
-        .rejected {
-            color: #c62828;
-            font-weight: bold;
-        }
-    </style>
-</head>
-<body>
-<div class="container">
-    <header>
-        <h1>TechLink Wealth</h1>
-        <p>Administrator Dashboard</p>
-        <p>Manage member applications and membership status.</p>
-    </header>
-
-    <h2>Registered Members</h2>
-
-    <div class="table-wrapper">
-        <table>
+    <div class="table-wrap">
+        <table class="data">
             <thead>
                 <tr>
                     <th>Name</th>
                     <th>Email</th>
                     <th>Phone</th>
                     <th>Status</th>
-                    <th>Registered</th>
+                    <th>Joined</th>
+                    <th>Decision</th>
                 </tr>
             </thead>
             <tbody>
-            <?php if (empty($members)): ?>
-                <tr>
-                    <td colspan="5">No ordinary members registered yet.</td>
-                </tr>
+            <?php if (!$members): ?>
+                <tr><td colspan="6">No members have registered yet.</td></tr>
             <?php else: ?>
                 <?php foreach ($members as $member): ?>
+                    <?php $status = strtolower((string) $member["membership_status"]); ?>
                     <tr>
-                        <td><?= htmlspecialchars($member["full_name"]) ?></td>
-                        <td><?= htmlspecialchars($member["email"]) ?></td>
-                        <td><?= htmlspecialchars($member["phone"]) ?></td>
-                        <td class="<?= htmlspecialchars($member["membership_status"]) ?>">
-                            <?= htmlspecialchars(ucfirst($member["membership_status"])) ?>
+                        <td><?= e($member["full_name"]) ?></td>
+                        <td><?= e($member["email"]) ?></td>
+                        <td><?= e($member["phone"]) ?></td>
+                        <td><span class="pill <?= e($status) ?>"><?= e($status) ?></span></td>
+                        <td><?= e($member["created_at"]) ?></td>
+                        <td>
+                            <?php if ($status === "pending"): ?>
+                                <div class="inline-actions">
+                                    <form method="POST" action="admin_dashboard.php">
+                                        <input type="hidden" name="csrf_token" value="<?= e($token) ?>">
+                                        <input type="hidden" name="member_id" value="<?= (int) $member["id"] ?>">
+                                        <button class="btn btn-ok" type="submit" name="action" value="approve">Approve</button>
+                                    </form>
+                                    <form method="POST" action="admin_dashboard.php">
+                                        <input type="hidden" name="csrf_token" value="<?= e($token) ?>">
+                                        <input type="hidden" name="member_id" value="<?= (int) $member["id"] ?>">
+                                        <button class="btn btn-danger" type="submit" name="action" value="reject">Decline</button>
+                                    </form>
+                                </div>
+                            <?php else: ?>
+                                <span class="note">Recorded</span>
+                            <?php endif; ?>
                         </td>
-                        <td><?= htmlspecialchars($member["created_at"]) ?></td>
                     </tr>
                 <?php endforeach; ?>
             <?php endif; ?>
             </tbody>
         </table>
     </div>
-</div>
-</body>
-</html>
+</section>
+
+<?php portal_close(); ?>

@@ -1,22 +1,38 @@
-
 <?php
-session_start();
-require_once "db.php";
+require_once "includes/app.php";
+require_admin();
 
-// Allow administrators only.
-if (
-    !isset($_SESSION["member_id"]) ||
-    !isset($_SESSION["role"]) ||
-    $_SESSION["role"] !== "admin"
-) {
-    header("Location: login.php");
-    exit;
+$error = "";
+
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $txnId = filter_input(INPUT_POST, "transaction_id", FILTER_VALIDATE_INT);
+    $action = $_POST["action"] ?? "";
+
+    if (!csrf_valid("txn_admin_csrf", $_POST["csrf_token"] ?? "")) {
+        $error = "This action expired. Refresh the page and try again.";
+    } elseif (!$txnId || !in_array($action, ["confirm", "fail"], true)) {
+        $error = "That transaction action is not valid.";
+    } else {
+        $newStatus = $action === "confirm" ? "confirmed" : "failed";
+        try {
+            $upd = $pdo->prepare(
+                "UPDATE transactions SET transaction_status = ?
+                 WHERE id = ? AND transaction_status = 'pending'"
+            );
+            $upd->execute([$newStatus, $txnId]);
+            $_SESSION["txn_admin_csrf"] = bin2hex(random_bytes(32));
+            header("Location: admin_transactions.php?updated=" . ($upd->rowCount() === 1 ? "1" : "0"));
+            exit;
+        } catch (PDOException $e) {
+            error_log("Transaction decision failed: " . $e->getMessage());
+            $error = "Unable to update the transaction. Please try again.";
+        }
+    }
 }
 
-// Retrieve transactions and their member details.
 try {
-    $stmt = $pdo->query("
-        SELECT
+    $stmt = $pdo->query(
+        "SELECT
             t.id,
             m.full_name,
             t.transaction_type,
@@ -24,194 +40,89 @@ try {
             t.payment_method,
             t.mpesa_receipt,
             t.transaction_status,
-            t.created_at
-        FROM transactions t
-        INNER JOIN members m
-            ON m.id = t.member_id
-        ORDER BY t.created_at DESC
-    ");
-
+            t.created_at,
+            (SELECT COUNT(*) FROM savings s WHERE s.transaction_id = t.id) AS posted
+         FROM transactions t
+         INNER JOIN members m ON m.id = t.member_id
+         ORDER BY t.created_at DESC"
+    );
     $transactions = $stmt->fetchAll();
-
 } catch (PDOException $e) {
     error_log("Unable to load transactions: " . $e->getMessage());
     http_response_code(500);
     exit("Unable to load transactions. Please try again later.");
 }
+
+$token = csrf_token("txn_admin_csrf");
+portal_open("Transactions", "transactions");
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transactions | TechLink Wealth</title>
+<section class="panel">
+    <h2>Society transactions</h2>
+    <p class="quiet">A stored row is not proof that a payment was received. Confirm a deposit only after checking the M-Pesa receipt or cash.</p>
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f3f6fa;
-            color: #172b4d;
-            margin: 0;
-            padding: 30px 15px;
-        }
+    <?php if ($error !== ""): ?>
+        <div class="alert alert-error"><?= e($error) ?></div>
+    <?php elseif (($_GET["updated"] ?? "") === "1"): ?>
+        <div class="alert alert-success">Transaction updated. Confirmed deposits can now be posted to savings.</div>
+    <?php elseif (($_GET["updated"] ?? "") === "0"): ?>
+        <div class="alert alert-error">That transaction is no longer pending.</div>
+    <?php endif; ?>
 
-        .container {
-            max-width: 1250px;
-            margin: auto;
-            background: white;
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-            overflow-x: auto;
-        }
-
-        h1 {
-            color: #102747;
-        }
-
-        .back-link {
-            display: inline-block;
-            margin-bottom: 20px;
-            color: #164e8a;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-            white-space: nowrap;
-        }
-
-        th {
-            background: #102747;
-            color: white;
-        }
-
-        tr:hover {
-            background: #f5f8fc;
-        }
-
-        .empty {
-            background: #f3f6fa;
-            padding: 18px;
-            border-radius: 8px;
-        }
-
-        .status {
-            font-weight: bold;
-            text-transform: capitalize;
-        }
-    </style>
-</head>
-
-<body>
-    <main class="container">
-        <h1>Transactions Management</h1>
-
-        <p>View financial transactions recorded in the database.</p>
-
-        <a class="back-link" href="admin_dashboard.php">
-            &larr; Back to Admin Dashboard
-        </a>
-
-        <?php if (count($transactions) > 0): ?>
-            <table>
+    <?php if ($transactions): ?>
+        <div class="table-wrap">
+            <table class="data">
                 <thead>
                     <tr>
                         <th>ID</th>
                         <th>Member</th>
-                        <th>Transaction Type</th>
-                        <th>Amount</th>
-                        <th>Payment Method</th>
-                        <th>M-Pesa Receipt</th>
+                        <th>Type</th>
+                        <th class="num">Amount</th>
+                        <th>Method</th>
+                        <th>M-Pesa receipt</th>
                         <th>Status</th>
                         <th>Date</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
-
                 <tbody>
                     <?php foreach ($transactions as $transaction): ?>
+                        <?php $status = strtolower((string) $transaction["transaction_status"]); ?>
                         <tr>
+                            <td><?= (int) $transaction["id"] ?></td>
+                            <td><?= e($transaction["full_name"]) ?></td>
+                            <td><?= e($transaction["transaction_type"]) ?></td>
+                            <td class="num"><?= e(money($transaction["amount"])) ?></td>
+                            <td><?= e($transaction["payment_method"]) ?></td>
+                            <td><?= e($transaction["mpesa_receipt"] ?? "—") ?></td>
+                            <td><span class="pill <?= e($status) ?>"><?= e($status) ?></span></td>
+                            <td><?= e($transaction["created_at"]) ?></td>
                             <td>
-                                <?= (int) $transaction["id"] ?>
-                            </td>
-
-                            <td>
-                                <?= htmlspecialchars(
-                                    $transaction["full_name"],
-                                    ENT_QUOTES,
-                                    "UTF-8"
-                                ) ?>
-                            </td>
-
-                            <td>
-                                <?= htmlspecialchars(
-                                    $transaction["transaction_type"],
-                                    ENT_QUOTES,
-                                    "UTF-8"
-                                ) ?>
-                            </td>
-
-                            <td>
-                                KSh <?= number_format(
-                                    (float) $transaction["amount"],
-                                    2
-                                ) ?>
-                            </td>
-
-                            <td>
-                                <?= htmlspecialchars(
-                                    $transaction["payment_method"],
-                                    ENT_QUOTES,
-                                    "UTF-8"
-                                ) ?>
-                            </td>
-
-                            <td>
-                                <?= htmlspecialchars(
-                                    $transaction["mpesa_receipt"] ?? "—",
-                                    ENT_QUOTES,
-                                    "UTF-8"
-                                ) ?>
-                            </td>
-
-                            <td class="status">
-                                <?= htmlspecialchars(
-                                    $transaction["transaction_status"],
-                                    ENT_QUOTES,
-                                    "UTF-8"
-                                ) ?>
-                            </td>
-
-                            <td>
-                                <?= htmlspecialchars(
-                                    $transaction["created_at"],
-                                    ENT_QUOTES,
-                                    "UTF-8"
-                                ) ?>
+                                <?php if ($status === "pending"): ?>
+                                    <form method="POST" action="admin_transactions.php">
+                                        <input type="hidden" name="csrf_token" value="<?= e($token) ?>">
+                                        <input type="hidden" name="transaction_id" value="<?= (int) $transaction["id"] ?>">
+                                        <div class="inline-actions">
+                                            <button class="btn btn-ok" name="action" value="confirm" type="submit">Confirm</button>
+                                            <button class="btn btn-danger" name="action" value="fail" type="submit">Reject</button>
+                                        </div>
+                                    </form>
+                                <?php elseif ($status === "confirmed" && $transaction["transaction_type"] === "deposit" && (int) $transaction["posted"] === 0): ?>
+                                    <a class="btn btn-gold" href="record_savings.php">Post to savings</a>
+                                <?php elseif ((int) $transaction["posted"] > 0): ?>
+                                    <span class="note">Posted to savings</span>
+                                <?php else: ?>
+                                    <span class="note">Recorded</span>
+                                <?php endif; ?>
                             </td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
             </table>
+        </div>
+    <?php else: ?>
+        <p class="empty">No transactions have been recorded yet.</p>
+    <?php endif; ?>
+</section>
 
-        <?php else: ?>
-            <p class="empty">
-                No transactions have been recorded yet.
-            </p>
-        <?php endif; ?>
-
-        <p>
-            <strong>Important:</strong> These are database records.
-            Their presence alone does not prove that a payment was received.
-        </p>
-    </main>
-</body>
-</html>
+<?php portal_close(); ?>

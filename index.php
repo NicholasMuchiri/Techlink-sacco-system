@@ -108,34 +108,34 @@ $loggedIn = is_logged_in();
 
         <section class="section" id="services">
             <p class="kicker">What members use</p>
-            <h2>The services on this platform.</h2>
+            <h2>Why this platform?</h2>
             <div class="service-list">
                 <article class="service-card">
                     <div class="service-photo" role="img" aria-label="Member savings" style="background-image: url('images/service-1.jpg')"></div>
                     <div class="service-body">
-                        <h3>Member savings</h3>
-                        <p>See the savings entries posted to your membership, with dates and amounts.</p>
+                        <h3>Empowering smart savers</h3>
+                        <p>Turn disciplined saving into meaningful opportunities for tomorrow.</p>
                     </div>
                 </article>
                 <article class="service-card">
                     <div class="service-photo" role="img" aria-label="Deposit records" style="background-image: url('images/service-2.jpg')"></div>
                     <div class="service-body">
-                        <h3>Deposit records</h3>
-                        <p>Follow deposits, including M-Pesa receipt numbers stored against a transaction.</p>
+                        <h3>Your Growth journey.</h3>
+                        <p>follow your progress with confidence and clarity in every step of the way.</p>
                     </div>
                 </article>
                 <article class="service-card">
                     <div class="service-photo" role="img" aria-label="Credit applications" style="background-image: url('images/service-3.jpg')"></div>
                     <div class="service-body">
-                        <h3>Credit applications</h3>
-                        <p>Request a loan, state its purpose, and track whether it is pending, approved, or declined.</p>
+                        <h3>Supporting future Tech professionals.</h3>
+                        <p>Helping students and innovators achieve their ambitions through collective strength.</p>
                     </div>
                 </article>
                 <article class="service-card">
                     <div class="service-photo" role="img" aria-label="Staff workspace" style="background-image: url('images/service-4.jpg')"></div>
                     <div class="service-body">
-                        <h3>Staff workspace</h3>
-                        <p>Administrators approve membership, post eligible deposits to savings, and decide credit.</p>
+                        <h3>Transparent by design.</h3>
+                        <p>Managed with integrity,accountability and the interests of members at heart.</p>
                     </div>
                 </article>
             </div>

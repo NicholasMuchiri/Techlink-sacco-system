@@ -16,7 +16,7 @@ $loggedIn = is_logged_in();
 
     <header class="site-header">
         <a class="brand" href="index.php">
-            <span class="mark">TW</span>
+           <span class="mark"><img src="images/logo.png" alt="" onerror="this.parentNode.textContent='TW'"></span>
             <span>
                 <strong>TechLink Wealth</strong>
                 <small>Savings &amp; Credit</small>

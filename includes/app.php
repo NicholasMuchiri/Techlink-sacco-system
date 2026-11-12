@@ -146,7 +146,7 @@ function portal_open(string $title, string $active): void
 <div class="app">
     <aside class="side">
         <a class="side-brand" href="<?= $role === "admin" ? "admin_dashboard.php" : "dashboard.php" ?>">
-            <span class="mark">TW</span>
+           <span class="mark"><img src="images/logo.png" alt="" onerror="this.parentNode.textContent='TW'"></span>
             <span>
                 <strong>TechLink Wealth</strong>
                 <small><?= e($workspace) ?></small>

@@ -60,10 +60,10 @@ $loggedIn = is_logged_in();
         </section>
 
         <section class="band">
-            <article><strong>Savings</strong><span>Contributions held against your name</span></article>
-            <article><strong>Credit</strong><span>Applications reviewed by the society</span></article>
-            <article><strong>Records</strong><span>Deposits, receipts, and status in one book</span></article>
-            <article><strong>Transactions</strong><span>Simple and transparent processes</span></article>
+            <article><strong>Savings</strong><span>Contributions held against your name.</span></article>
+            <article><strong>Credit</strong><span>Applications reviewed by the society.</span></article>
+            <article><strong>Records</strong><span>Deposits, receipts, and status in one book.</span></article>
+            <article><strong>Transactions</strong><span>Simple and transparent processes.</span></article>
         </section>
 
         <section class="section" id="about">

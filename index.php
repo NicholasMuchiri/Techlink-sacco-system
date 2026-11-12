@@ -29,7 +29,7 @@ $loggedIn = is_logged_in();
                 <a href="logout.php">Sign out</a>
                 <a class="btn btn-green" href="dashboard.php">My dashboard</a>
             <?php else: ?>
-                <a href="register.php">Open an account</a>
+                <a href="register.php">Open an account.</a>
                 <a class="btn btn-green" href="login.php">Sign in</a>
             <?php endif; ?>
         </nav>

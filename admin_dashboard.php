@@ -29,7 +29,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 }
 
 $members = $pdo->query(
-    "SELECT id, full_name, email, phone, membership_status, created_at
+    "SELECT id, full_name, email, account_number, phone, membership_status, created_at
      FROM members
      WHERE role = 'member'
      ORDER BY created_at DESC"
@@ -109,6 +109,7 @@ portal_open("Members", "members");
         <table class="data">
             <thead>
                 <tr>
+                    <th>Account</th>
                     <th>Name</th>
                     <th>Email</th>
                     <th>Phone</th>
@@ -119,11 +120,12 @@ portal_open("Members", "members");
             </thead>
             <tbody>
             <?php if (!$members): ?>
-                <tr><td colspan="6">No members have registered yet.</td></tr>
+                <tr><td colspan="7">No members have registered yet.</td></tr>
             <?php else: ?>
                 <?php foreach ($members as $member): ?>
                     <?php $status = strtolower((string) $member["membership_status"]); ?>
                     <tr>
+                        <td><?= e($member["account_number"]) ?></td>
                         <td><?= e($member["full_name"]) ?></td>
                         <td><?= e($member["email"]) ?></td>
                         <td><?= e($member["phone"]) ?></td>

@@ -48,7 +48,7 @@ function require_member(bool $approvedOnly = false): array
         exit;
     }
 
-    $sql = "SELECT id, full_name, email, phone, membership_status, created_at
+    $sql = "SELECT id, full_name, email, account_number, phone, membership_status, created_at
             FROM members
             WHERE id = ? AND role = 'member'";
 
@@ -73,6 +73,7 @@ function require_member(bool $approvedOnly = false): array
     }
 
     $_SESSION["member_name"] = $member["full_name"];
+    $_SESSION["account_number"] = $member["account_number"] ?? "";
 
     return $member;
 }
@@ -129,6 +130,7 @@ function portal_open(string $title, string $active): void
             "home" => ["Overview", "dashboard.php"],
             "savings" => ["Savings", "my_savings.php"],
             "transactions" => ["Transactions", "my_transactions.php"],
+            "deposit" => ["Make a deposit", "deposit.php"],
             "loans" => ["My loans", "my_loans.php"],
             "apply" => ["Apply for credit", "apply_loan.php"],
             "profile" => ["Profile", "my_profile.php"],
@@ -146,7 +148,7 @@ function portal_open(string $title, string $active): void
 <div class="app">
     <aside class="side">
         <a class="side-brand" href="<?= $role === "admin" ? "admin_dashboard.php" : "dashboard.php" ?>">
-           <span class="mark"><img src="images/logo.png" alt="" onerror="this.parentNode.textContent='TW'"></span>
+            <span class="mark">TW</span>
             <span>
                 <strong>TechLink Wealth</strong>
                 <small><?= e($workspace) ?></small>
@@ -163,7 +165,7 @@ function portal_open(string $title, string $active): void
             <span class="avatar"><?= e(initials($name)) ?></span>
             <span>
                 <strong><?= e($name) ?></strong>
-                <small><?= $role === "admin" ? "Administrator" : "Member" ?></small>
+                <small><?= $role === "admin" ? "Administrator" : e("A/C " . ($_SESSION["account_number"] ?? "")) ?></small>
             </span>
             <a class="side-out" href="logout.php">Sign out</a>
         </div>

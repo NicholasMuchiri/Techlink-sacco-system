@@ -52,33 +52,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
-    <div class="gate">
-        <aside class="gate-brand">
-            <a class="brand" href="index.php">
-                <span class="mark">TW</span>
-                <span>
-                    <strong>TechLink Wealth</strong>
-                    <small>Savings &amp; Credit</small>
-                </span>
-            </a>
-            <div>
-                <h1>One entrance for members and staff.</h1>
-                <p>Sign in with the email on your account. Members open their statement. Administrators open the society books.</p>
-                <ul class="gate-points">
-                    <li>Savings and deposit history</li>
-                    <li>Credit applications and decisions</li>
-                    <li>Membership approval for staff</li>
-                </ul>
-            </div>
-            <p>Innovate. Invest. Grow.</p>
-        </aside>
-
+    <div class="gate" style="background: linear-gradient(rgba(255,255,255,0.8), rgba(255,255,255,0.8)), url('images/hero.jpg') center / cover no-repeat fixed;">
+   
         <main class="gate-panel">
             <div class="gate-card">
                 <p class="kicker">Account access</p>
                 <h2>Sign in</h2>
-                <p class="quiet">Use the same form whether you are a member or an administrator.</p>
-
+               
                 <?php if ($error !== ""): ?>
                     <div class="alert alert-error"><?= e($error) ?></div>
                 <?php endif; ?>

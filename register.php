@@ -40,19 +40,27 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     "INSERT INTO members (full_name, email, phone, password_hash)
                      VALUES (?, ?, ?, ?)"
                 );
+                $pdo->beginTransaction();
                 $insert->execute([
                     $full_name,
                     $email,
                     $phone,
                     password_hash($password, PASSWORD_DEFAULT),
                 ]);
+                $newId = (int) $pdo->lastInsertId();
+                $account = "TW" . str_pad((string) $newId, 6, "0", STR_PAD_LEFT);
+                $pdo->prepare("UPDATE members SET account_number = ? WHERE id = ?")->execute([$account, $newId]);
+                $pdo->commit();
 
-                $success = "Your membership application is in. You can sign in while it is reviewed.";
+                $success = "Your membership application is in. Your account number is " . $account . ". You can sign in while it is reviewed.";
                 $full_name = "";
                 $email = "";
                 $phone = "";
             }
         } catch (PDOException $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
             error_log("Member registration failed: " . $e->getMessage());
             $error = "We could not complete your registration. Please try again.";
         }
@@ -68,33 +76,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
-    <div class="gate">
-        <aside class="gate-brand">
-            <a class="brand" href="index.php">
-                <span class="mark">TW</span>
-                <span>
-                    <strong>TechLink Wealth</strong>
-                    <small>Savings &amp; Credit</small>
-                </span>
-            </a>
-            <div>
-                <h1>Join the society.</h1>
-                <p>Registration creates a member account. Savings and credit open after the membership is approved.</p>
-                <ul class="gate-points">
-                    <li>Your name, phone, and email</li>
-                    <li>A password of at least 8 characters</li>
-                    <li>Status starts as pending review</li>
-                </ul>
-            </div>
-            <p>Innovate. Invest. Grow.</p>
-        </aside>
-
+    <div class="gate" style="background: linear-gradient(rgba(255,255,255,0.8), rgba(255,255,255,0.8)), url('images/hero.jpg') center / cover no-repeat fixed;">
+   
         <main class="gate-panel">
             <div class="gate-card">
                 <p class="kicker">Membership</p>
                 <h2>Open an account</h2>
-                <p class="quiet">This form is for members. Staff accounts are issued by the society.</p>
-
+               
                 <?php if ($error !== ""): ?>
                     <div class="alert alert-error"><?= e($error) ?></div>
                 <?php endif; ?>

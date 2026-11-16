@@ -43,7 +43,7 @@ $loggedIn = is_logged_in();
                 <div class="hero-slide" style="background-image: url('images/hero-3.jpg')"></div>
             </div>
 
-            <div class="hero-content is-animating">
+            <div class="hero-content">
                 <p class="kicker">TechLink Wealth Investments Limited</p>
                 <h1>A society for people who build, save, and grow.</h1>
                 <p class="lede">
@@ -156,7 +156,6 @@ $loggedIn = is_logged_in();
     <script>
     (function () {
         var hero = document.getElementById("home");
-        var content = hero.querySelector(".hero-content");
         var next = hero.querySelector(".hero-next");
         var dotsBox = hero.querySelector(".hero-dots");
         var slides = [].slice.call(hero.querySelectorAll(".hero-slide"));
@@ -182,10 +181,7 @@ $loggedIn = is_logged_in();
         function show(n) {
             current = (n + slides.length) % slides.length;
             slides.forEach(function (s, k) { s.classList.toggle("is-active", k === current); });
-            dots.forEach(function (d, k) { d.classList.toggle("is-active", k === current); });
-            content.classList.remove("is-animating");
-            void content.offsetWidth;               // restart the text slide-in
-            content.classList.add("is-animating");
+            dots.forEach(function (d, k) { d.classList.toggle("is-active", k === current); });    
         }
 
         function start() {

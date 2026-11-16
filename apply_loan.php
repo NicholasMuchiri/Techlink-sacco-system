@@ -39,6 +39,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 if (isset($_GET["submitted"])) {
     $success = "Your loan application was submitted and is awaiting review.";
+    header("location: my_loans.php");
+    exit();
 }
 
 $token = csrf_token("loan_csrf_token");

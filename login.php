@@ -40,6 +40,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             error_log("Sign-in failed: " . $e->getMessage());
             $error = "Sign-in is unavailable right now. Please try again.";
         }
+        
     }
 }
 ?>
@@ -96,11 +97,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 </form>
 
                 <div class="form-links">
+                    <a href="forgot.php">Forgot password?</a>
                     <a href="register.php">Open a member account</a>
-                    <a href="index.php">Back home</a>
+                    <a href="index.php">Back home</a>t</a>
                 </div>
             </div>
         </main>
     </div>
 </body>
 </html>
+<?php if (isset($_GET["reset"])): ?>
+    <div class="alert alert-success">Password updated. Please sign in.</div>
+<?php endif; ?>

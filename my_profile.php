@@ -81,6 +81,10 @@ portal_open("Profile", "profile");
 
     <dl class="profile-grid">
         <div>
+            <dt>Account number</dt>
+            <dd><strong><?= e($member["account_number"]) ?></strong></dd>
+        </div>
+        <div>
             <dt>Full name</dt>
             <dd><?= e($member["full_name"]) ?></dd>
         </div>

@@ -16,7 +16,7 @@ $loggedIn = is_logged_in();
 
     <header class="site-header">
         <a class="brand" href="index.php">
-            <span class="mark">TW</span>
+           <span class="mark"><img src="images/logo.png" alt="" onerror="this.parentNode.textContent='TW'"></span>
             <span>
                 <strong>TechLink Wealth</strong>
                 <small>Savings &amp; Credit</small>
@@ -29,7 +29,7 @@ $loggedIn = is_logged_in();
                 <a href="logout.php">Sign out</a>
                 <a class="btn btn-green" href="dashboard.php">My dashboard</a>
             <?php else: ?>
-                <a href="register.php">Open an account</a>
+                <a href="register.php">Open an account.</a>
                 <a class="btn btn-green" href="login.php">Sign in</a>
             <?php endif; ?>
         </nav>
@@ -43,7 +43,7 @@ $loggedIn = is_logged_in();
                 <div class="hero-slide" style="background-image: url('images/hero-3.jpg')"></div>
             </div>
 
-            <div class="hero-content is-animating">
+            <div class="hero-content">
                 <p class="kicker">TechLink Wealth Investments Limited</p>
                 <h1>A society for people who build, save, and grow.</h1>
                 <p class="lede">
@@ -60,10 +60,10 @@ $loggedIn = is_logged_in();
         </section>
 
         <section class="band">
-            <article><strong>Savings</strong><span>Contributions held against your name</span></article>
-            <article><strong>Credit</strong><span>Applications reviewed by the society</span></article>
-            <article><strong>Records</strong><span>Deposits, receipts, and status in one book</span></article>
-            <article><strong>Transactions</strong><span>Simple and transparent processes</span></article>
+            <article><strong>Savings</strong><span>Contributions held against your name.</span></article>
+            <article><strong>Credit</strong><span>Applications reviewed by the society.</span></article>
+            <article><strong>Records</strong><span>Deposits, receipts, and status in one book.</span></article>
+            <article><strong>Transactions</strong><span>Simple and transparent processes.</span></article>
         </section>
 
         <section class="section" id="about">
@@ -108,34 +108,34 @@ $loggedIn = is_logged_in();
 
         <section class="section" id="services">
             <p class="kicker">What members use</p>
-            <h2>The services on this platform.</h2>
+            <h2>Why this platform?</h2>
             <div class="service-list">
                 <article class="service-card">
                     <div class="service-photo" role="img" aria-label="Member savings" style="background-image: url('images/service-1.jpg')"></div>
                     <div class="service-body">
-                        <h3>Member savings</h3>
-                        <p>See the savings entries posted to your membership, with dates and amounts.</p>
+                        <h3>Empowering smart savers</h3>
+                        <p>Turn disciplined saving into meaningful opportunities for tomorrow.</p>
                     </div>
                 </article>
                 <article class="service-card">
                     <div class="service-photo" role="img" aria-label="Deposit records" style="background-image: url('images/service-2.jpg')"></div>
                     <div class="service-body">
-                        <h3>Deposit records</h3>
-                        <p>Follow deposits, including M-Pesa receipt numbers stored against a transaction.</p>
+                        <h3>Your Growth journey.</h3>
+                        <p>follow your progress with confidence and clarity in every step of the way.</p>
                     </div>
                 </article>
                 <article class="service-card">
                     <div class="service-photo" role="img" aria-label="Credit applications" style="background-image: url('images/service-3.jpg')"></div>
                     <div class="service-body">
-                        <h3>Credit applications</h3>
-                        <p>Request a loan, state its purpose, and track whether it is pending, approved, or declined.</p>
+                        <h3>Supporting future Tech professionals.</h3>
+                        <p>Helping students and innovators achieve their ambitions through collective strength.</p>
                     </div>
                 </article>
                 <article class="service-card">
                     <div class="service-photo" role="img" aria-label="Staff workspace" style="background-image: url('images/service-4.jpg')"></div>
                     <div class="service-body">
-                        <h3>Staff workspace</h3>
-                        <p>Administrators approve membership, post eligible deposits to savings, and decide credit.</p>
+                        <h3>Transparent by design.</h3>
+                        <p>Managed with integrity,accountability and the interests of members at heart.</p>
                     </div>
                 </article>
             </div>
@@ -156,7 +156,6 @@ $loggedIn = is_logged_in();
     <script>
     (function () {
         var hero = document.getElementById("home");
-        var content = hero.querySelector(".hero-content");
         var next = hero.querySelector(".hero-next");
         var dotsBox = hero.querySelector(".hero-dots");
         var slides = [].slice.call(hero.querySelectorAll(".hero-slide"));
@@ -182,10 +181,7 @@ $loggedIn = is_logged_in();
         function show(n) {
             current = (n + slides.length) % slides.length;
             slides.forEach(function (s, k) { s.classList.toggle("is-active", k === current); });
-            dots.forEach(function (d, k) { d.classList.toggle("is-active", k === current); });
-            content.classList.remove("is-animating");
-            void content.offsetWidth;               // restart the text slide-in
-            content.classList.add("is-animating");
+            dots.forEach(function (d, k) { d.classList.toggle("is-active", k === current); });    
         }
 
         function start() {

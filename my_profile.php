@@ -84,6 +84,12 @@ portal_open("Profile", "profile");
             <dt>Full name</dt>
             <dd><?= e($member["full_name"]) ?></dd>
         </div>
+        <div class="profile-item">
+    <span>Membership ID</span>
+    <strong>
+        <?= e($member["membership_number"] ?? "Not assigned") ?>
+    </strong>
+</div>
         <div>
             <dt>Email</dt>
             <dd><?= e($member["email"]) ?></dd>

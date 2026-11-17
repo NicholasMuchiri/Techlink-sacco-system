@@ -39,6 +39,7 @@ function require_admin(): void
     }
 }
 
+
 function require_member(bool $approvedOnly = false): array
 {
     global $pdo;
@@ -48,34 +49,49 @@ function require_member(bool $approvedOnly = false): array
         exit;
     }
 
-    $sql = "SELECT id, full_name, email, phone, membership_status, created_at
+    $sql = "SELECT
+                id,
+                full_name,
+                email,
+                phone,
+                membership_status,
+                membership_number,
+                email_verified_at,
+                created_at
             FROM members
-            WHERE id = ? AND role = 'member'";
-
-    if ($approvedOnly) {
-        $sql .= " AND membership_status = 'approved'";
-    }
+            WHERE id = ?
+            AND role = 'member'";
 
     $stmt = $pdo->prepare($sql);
     $stmt->execute([(int) $_SESSION["member_id"]]);
-    $member = $stmt->fetch();
 
-    if (!$member) {
-        if ($approvedOnly) {
-            header("Location: dashboard.php?notice=approval");
-            exit;
-        }
+    $member = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    // Require verified and active membership.
+    // Approved is temporarily accepted for existing accounts.
+    if (
+        !$member ||
+        empty($member["email_verified_at"]) ||
+        !in_array(
+            strtolower($member["membership_status"]),
+            ["active", "approved"],
+            true
+        )
+    ) {
 
         $_SESSION = [];
         session_destroy();
+
         header("Location: login.php");
         exit;
     }
 
     $_SESSION["member_name"] = $member["full_name"];
+    $_SESSION["membership_status"] = $member["membership_status"];
 
     return $member;
 }
+
 
 function csrf_token(string $key): string
 {
